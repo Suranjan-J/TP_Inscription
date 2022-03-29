@@ -24,8 +24,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener{
     public static Connection conn = null;
     private EditText ajpseudo, ajmdp, ajcmdp, ajcommentaire;
     private Button ok;
-    private RadioButton lundi, mardi, mercredi, jeudi, vendredi, easy, medium, hard, selected;
-    private RadioGroup radioGroup_diffLevel;
+    private RadioButton lundi, mardi, mercredi, jeudi, vendredi, easy, medium, hard, selecteddiff, selectedjour;
+    private RadioGroup radioGroup_diffLevel, radioGroup_jour;
     private Spinner spinner;
     private String pass, cpass;
 
@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener{
         spinner = (Spinner) findViewById(R.id.spinner);
 
         radioGroup_diffLevel = (RadioGroup) findViewById(R.id.radioGroup_diffLevel);
+        radioGroup_jour = (RadioGroup) findViewById(R.id.radioGroup_jour);
 
 
     }
@@ -101,9 +102,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener{
     @Override
     public void onClick(View view) {
 
-        int selectedid = radioGroup_diffLevel.getCheckedRadioButtonId();
-        selected  = (RadioButton) findViewById(radioGroup_diffLevel.getCheckedRadioButtonId());
-       selected  = (RadioButton) findViewById(selectedid);
+        int selecteddiffid = radioGroup_diffLevel.getCheckedRadioButtonId();
+        selecteddiff  = (RadioButton) findViewById(radioGroup_diffLevel.getCheckedRadioButtonId());
+        selecteddiff  = (RadioButton) findViewById(selecteddiffid);
+
+        int selectedjourid = radioGroup_jour.getCheckedRadioButtonId();
+        selectedjour = (RadioButton) findViewById(radioGroup_jour.getCheckedRadioButtonId());
+        selectedjour  = (RadioButton) findViewById(selectedjourid);
 
        String pass=ajmdp.getText().toString();
        String cpass=ajcmdp.getText().toString();
@@ -112,18 +117,23 @@ public class MainActivity extends AppCompatActivity implements OnClickListener{
                   Toast.makeText(MainActivity.this, "Mot de passe non identique" , Toast.LENGTH_LONG).show();
               }
         else{
-            if (selectedid == -1) {
-                Toast.makeText(MainActivity.this, "Veuillez choisir un niveau" , Toast.LENGTH_LONG).show();
-
+            if (selecteddiffid  == -1 || selectedjourid == -1) {
+                if (selecteddiffid  == -1){
+                    Toast.makeText(MainActivity.this, "Veuillez choisir un niveau" , Toast.LENGTH_LONG).show();
+                }
+                else if (selectedjourid == -1){
+                    Toast.makeText(MainActivity.this, "Veuillez choisir un jour" , Toast.LENGTH_LONG).show();
+                }
             }
             else{
                 try {
-                    String sqlins = "insert into informations (pseudo, mdp, commentaire, difficultee) values (?,?,?,?)";
+                    String sqlins = "insert into informations (pseudo, mdp, commentaire, difficultee, jour) values (?,?,?,?,?)";
                     PreparedStatement pstmins = conn.prepareStatement(sqlins);
                     pstmins.setString(1, ajpseudo.getText().toString());
                     pstmins.setString(2, ajmdp.getText().toString());
                     pstmins.setString(3, ajcommentaire.getText().toString());
-                    pstmins.setString(4, selected.getText().toString());
+                    pstmins.setString(4, selecteddiff.getText().toString());
+                    pstmins.setString(5, selectedjour.getText().toString());
 
                     pstmins.executeUpdate();
                     Toast.makeText(MainActivity.this, "Donnée envoyer", Toast.LENGTH_LONG).show();
@@ -143,6 +153,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener{
         ajcmdp.setText("");
         ajcommentaire.setText("");
         radioGroup_diffLevel.clearCheck();
+        radioGroup_jour.clearCheck();
     }
 
 }
