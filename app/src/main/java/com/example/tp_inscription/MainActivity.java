@@ -17,6 +17,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements OnClickListener{
 
@@ -112,6 +114,16 @@ public class MainActivity extends AppCompatActivity implements OnClickListener{
 
        String pass=ajmdp.getText().toString();
        String cpass=ajcmdp.getText().toString();
+
+        Statement stmt = conn.createStatement();
+        String sql = "SELECT id, nom, age, adresse FROM inscription";
+        ResultSet res = stmt.executeQuery(sql);
+
+        while(res.next()) {
+            ArrayList association = new ArrayList() {{
+                String nom = res.getString("nom");
+            }};
+        }
 
         if (!pass.equals(cpass)){
                   Toast.makeText(MainActivity.this, "Mot de passe non identique" , Toast.LENGTH_LONG).show();
