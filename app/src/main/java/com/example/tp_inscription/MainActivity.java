@@ -90,6 +90,16 @@ public class MainActivity extends AppCompatActivity implements OnClickListener{
             conn = DriverManager.getConnection(jdbcURL, user, passwd);
             Toast.makeText(MainActivity.this, "Connexion reussie.", Toast.LENGTH_LONG).show();
 
+            Statement stmt = conn.createStatement();
+            String sql = "SELECT id, nom, age, adresse FROM inscription";
+            ResultSet res = stmt.executeQuery(sql);
+
+            while(res.next()) {
+                ArrayList association = new ArrayList() {{
+                    String nom = res.getString("nom");
+                }};
+            }
+
         } catch (ClassNotFoundException e) {
             Toast.makeText(MainActivity.this, "Driver manquant." + e.getMessage().toString(), Toast.LENGTH_LONG).show();
 
@@ -114,16 +124,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener{
 
        String pass=ajmdp.getText().toString();
        String cpass=ajcmdp.getText().toString();
-
-        Statement stmt = conn.createStatement();
-        String sql = "SELECT id, nom, age, adresse FROM inscription";
-        ResultSet res = stmt.executeQuery(sql);
-
-        while(res.next()) {
-            ArrayList association = new ArrayList() {{
-                String nom = res.getString("nom");
-            }};
-        }
 
         if (!pass.equals(cpass)){
                   Toast.makeText(MainActivity.this, "Mot de passe non identique" , Toast.LENGTH_LONG).show();
