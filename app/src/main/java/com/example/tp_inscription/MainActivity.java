@@ -142,6 +142,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener{
         ajmdp.setText("");
         ajcmdp.setText("");
         ajcommentaire.setText("");
+        radioGroup_diffLevel.clearCheck();
     }
 
 }
