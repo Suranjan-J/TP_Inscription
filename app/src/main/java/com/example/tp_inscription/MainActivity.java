@@ -6,6 +6,8 @@ import android.os.StrictMode;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
@@ -51,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener{
                 .build());
 
         //appel de la connexion
-        this.MysqlConnexion();
+        MysqlConnexion();
 
 //Déclarations
         ajpseudo = (EditText) findViewById(R.id.ajpseudo);
@@ -71,19 +73,29 @@ public class MainActivity extends AppCompatActivity implements OnClickListener{
         medium = (RadioButton) findViewById(R.id.medium);
         hard = (RadioButton) findViewById(R.id.hard);
 
-
         spinner = (Spinner) findViewById(R.id.spinner);
 
         radioGroup_diffLevel = (RadioGroup) findViewById(R.id.radioGroup_diffLevel);
         radioGroup_jour = (RadioGroup) findViewById(R.id.radioGroup_jour);
 
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String name = spinner.getSelectedItem().toString();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
     }
 
     private void MysqlConnexion() {
-        String jdbcURL = "jdbc:mysql://10.4.253.123:3306/inscription";
-        String user = "monty";
-        String passwd = "some_pass";
+        String jdbcURL = "jdbc:mysql://192.168.1.20:3306/inscription";
+        String user = "username";
+        String passwd = "password";
 
         try {
             Class.forName("com.mysql.jdbc.Driver");
@@ -91,14 +103,18 @@ public class MainActivity extends AppCompatActivity implements OnClickListener{
             Toast.makeText(MainActivity.this, "Connexion reussie.", Toast.LENGTH_LONG).show();
 
             Statement stmt = conn.createStatement();
-            String sql = "SELECT id, nom, age, adresse FROM inscription";
+            String sql = "SELECT * FROM association";
             ResultSet res = stmt.executeQuery(sql);
 
-            while(res.next()) {
-                ArrayList association = new ArrayList() {{
-                    String nom = res.getString("nom");
-                }};
+            /*ArrayList<String> association = new ArrayList<String>();
+            while (res.next()) {
+                String id = res.getString("association");
+                association.add(id);
             }
+            String[] array = association.toArray(new String[0]);
+            ArrayAdapter NoCoreAdapter = new ArrayAdapter(this,
+                    android.R.layout.simple_list_item_1, association);
+            spinner.setAdapter(NoCoreAdapter);*/
 
         } catch (ClassNotFoundException e) {
             Toast.makeText(MainActivity.this, "Driver manquant." + e.getMessage().toString(), Toast.LENGTH_LONG).show();
@@ -114,16 +130,22 @@ public class MainActivity extends AppCompatActivity implements OnClickListener{
     @Override
     public void onClick(View view) {
 
+        //Avoir le bon bouton selectionner ( RadioGroup : Niveau )
         int selecteddiffid = radioGroup_diffLevel.getCheckedRadioButtonId();
         selecteddiff  = (RadioButton) findViewById(radioGroup_diffLevel.getCheckedRadioButtonId());
         selecteddiff  = (RadioButton) findViewById(selecteddiffid);
 
+        //Avoir le bon bouton selectionner ( RadioGroup : Diponibilité de la semaine )
         int selectedjourid = radioGroup_jour.getCheckedRadioButtonId();
         selectedjour = (RadioButton) findViewById(radioGroup_jour.getCheckedRadioButtonId());
         selectedjour  = (RadioButton) findViewById(selectedjourid);
 
-       String pass=ajmdp.getText().toString();
-       String cpass=ajcmdp.getText().toString();
+        //Avoir le bon spinner selectionner
+        String text = spinner.getSelectedItem().toString();
+
+        //Verification mdp
+        String pass=ajmdp.getText().toString();
+        String cpass=ajcmdp.getText().toString();
 
         if (!pass.equals(cpass)){
                   Toast.makeText(MainActivity.this, "Mot de passe non identique" , Toast.LENGTH_LONG).show();
@@ -139,13 +161,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener{
             }
             else{
                 try {
-                    String sqlins = "insert into informations (pseudo, mdp, commentaire, difficultee, jour) values (?,?,?,?,?)";
+                    String sqlins = "insert into informations (pseudo, mdp, commentaire, difficultee, jour, association) values (?,?,?,?,?,?)";
                     PreparedStatement pstmins = conn.prepareStatement(sqlins);
                     pstmins.setString(1, ajpseudo.getText().toString());
                     pstmins.setString(2, ajmdp.getText().toString());
                     pstmins.setString(3, ajcommentaire.getText().toString());
                     pstmins.setString(4, selecteddiff.getText().toString());
                     pstmins.setString(5, selectedjour.getText().toString());
+                    pstmins.setString(6, spinner.getSelectedItem().toString());
 
                     pstmins.executeUpdate();
                     Toast.makeText(MainActivity.this, "Donnée envoyer", Toast.LENGTH_LONG).show();
