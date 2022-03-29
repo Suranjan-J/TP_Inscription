@@ -83,11 +83,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener{
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String name = spinner.getSelectedItem().toString();
+                Toast.makeText(MainActivity.this, name, Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-
             }
         });
     }
@@ -106,15 +106,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener{
             String sql = "SELECT * FROM association";
             ResultSet res = stmt.executeQuery(sql);
 
-            /*ArrayList<String> association = new ArrayList<String>();
+            ArrayList<String> data = new ArrayList<String>();
             while (res.next()) {
-                String id = res.getString("association");
-                association.add(id);
+                String id = res.getString("listassociation");
+                data.add(id);
             }
-            String[] array = association.toArray(new String[0]);
-            ArrayAdapter NoCoreAdapter = new ArrayAdapter(this,
-                    android.R.layout.simple_list_item_1, association);
-            spinner.setAdapter(NoCoreAdapter);*/
+            String[] array = data.toArray(new String[0]);
+            ArrayAdapter NoCoreAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, data);
+            spinner.setAdapter(NoCoreAdapter);
 
         } catch (ClassNotFoundException e) {
             Toast.makeText(MainActivity.this, "Driver manquant." + e.getMessage().toString(), Toast.LENGTH_LONG).show();
