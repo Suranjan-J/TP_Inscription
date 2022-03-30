@@ -256,7 +256,7 @@
         app:layout_constraintTop_toBottomOf="@+id/tableLayout">
 
         <TableRow
-            android:layout_width="match_parent"
+            android:layout_width="251dp"
             android:layout_height="match_parent">
 
             <TextView
@@ -266,45 +266,52 @@
                 android:text="Disponibilité de la semaine :"
                 android:textSize="20sp" />
 
-            <RadioGroup
-                android:id="@+id/radioGroup_jour"
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+
+            <CheckBox
+                android:id="@+id/lundi"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:text="Lundi" />
+
+            <CheckBox
+                android:id="@+id/mardi"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:text="Mardi" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+
+            <CheckBox
+                android:id="@+id/mercredi"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:text="Mercredi" />
 
-                <RadioButton
-                    android:id="@+id/lundi"
-                    android:layout_width="100dp"
-                    android:layout_height="wrap_content"
-                    android:text="Lundi" />
+            <CheckBox
+                android:id="@+id/jeudi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Jeudi" />
+        </TableRow>
 
-                <RadioButton
-                    android:id="@+id/mardi"
-                    android:layout_width="100dp"
-                    android:layout_height="50dp"
-                    android:text="Mardi"
-                    tools:ignore="TouchTargetSizeCheck" />
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
 
-                <RadioButton
-                    android:id="@+id/mercredi"
-                    android:layout_width="100dp"
-                    android:layout_height="wrap_content"
-                    android:text="Mercredi" />
-
-                <RadioButton
-                    android:id="@+id/jeudi"
-                    android:layout_width="100dp"
-                    android:layout_height="wrap_content"
-                    android:text="Jeudi"
-                    tools:ignore="TouchTargetSizeCheck" />
-
-                <RadioButton
-                    android:id="@+id/vendredi"
-                    android:layout_width="100dp"
-                    android:layout_height="wrap_content"
-                    android:text="Vendredi"
-                    tools:ignore="TouchTargetSizeCheck" />
-
-            </RadioGroup>
+            <CheckBox
+                android:id="@+id/vendredi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CheckBox" />
         </TableRow>
 
     </TableLayout>
