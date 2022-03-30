@@ -141,13 +141,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         String dispcheck = "";
 
         //Si la confirmation de mot de passe n'est pas identique et si le pseudo est déjà pris, l'envoie des données n'est pas possible
-        if (!pass.equals(cpass) || userv == 1) {
+        if (!pass.equals(cpass) || userv == 0) {
             //Si la confirmation de mot de passe n'est pas identique, l'envoie des données n'est pas possible
             if (!pass.equals(cpass)){
                 Toast.makeText(MainActivity.this, "Mot de passe non identique", Toast.LENGTH_LONG).show();
             }
             //Si le pseudo est déjà pris, l'envoie des données n'est pas possible
-            else if (userv == 1){
+            else if (userv == 0){
                 Toast.makeText(MainActivity.this, "Le pseudo est déjà pris", Toast.LENGTH_LONG).show();
             }
         } else {
@@ -206,9 +206,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     public int VerificationUser(){
         try {
             mysqlConnexion();
-            String verif = ajpseudo.getText().toString();
+            //String verif = ajpseudo.getText().toString();
             Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            ResultSet userv = stmt.executeQuery("SELECT * from informations WHERE pseudo = '"+verif+"' ");
+            ResultSet userv = stmt.executeQuery("SELECT count(*) from informations WHERE pseudo = '"+ajpseudo+"' ");
             if (userv.next())
                 return userv.getInt(1);
             else{
