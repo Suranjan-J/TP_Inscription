@@ -24,6 +24,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity implements OnClickListener {
 
@@ -36,7 +37,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     private RadioGroup radioGroup_diffLevel, radioGroup_jour;
     private CheckBox lundi, mardi, mercredi, jeudi, vendredi;
     private Spinner spinner;
-    private String pass, cpass;
+    private String pass, cpass, verifpseudo, acc_col ="";
     private int userv;
 
     @Override
@@ -82,14 +83,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         radioGroup_diffLevel = (RadioGroup) findViewById(R.id.radioGroup_diffLevel);
 
         FillSpinner();
-        VerificationUser();
     }
 
     @SuppressLint("NewApi")
     public void mysqlConnexion() {
-        String jdbcURL = "jdbc:mysql://10.4.253.123:3306/inscription";
-        String user = "monty";
-        String passwd = "some_pass";
+        String jdbcURL = "jdbc:mysql://192.168.1.20:3306/inscription";
+        String user = "username";
+        String passwd = "password";
 
         try {
             Class.forName("com.mysql.jdbc.Driver");
@@ -134,21 +134,26 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         String text = spinner.getSelectedItem().toString();
 
         //Verification mdp
-        String pass = ajmdp.getText().toString();
-        String cpass = ajcmdp.getText().toString();
+        pass = ajmdp.getText().toString();
+        cpass = ajcmdp.getText().toString();
 
         //Verification si une disponibilité est check
         String dispcheck = "";
 
+        //Verification pseudo
+        verifpseudo = ajpseudo.getText().toString();
+
+        VerificationUser();
+
         //Si la confirmation de mot de passe n'est pas identique et si le pseudo est déjà pris, l'envoie des données n'est pas possible
-        if (!pass.equals(cpass) || userv == 0) {
+        if (!pass.equals(cpass) || userv == 1) {
             //Si la confirmation de mot de passe n'est pas identique, l'envoie des données n'est pas possible
             if (!pass.equals(cpass)){
                 Toast.makeText(MainActivity.this, "Mot de passe non identique", Toast.LENGTH_LONG).show();
             }
             //Si le pseudo est déjà pris, l'envoie des données n'est pas possible
-            else if (userv == 0){
-                Toast.makeText(MainActivity.this, "Le pseudo est déjà pris", Toast.LENGTH_LONG).show();
+            else if (userv == 1){
+                Toast.makeText(MainActivity.this, "Le pseudo est déjà pris ", Toast.LENGTH_LONG).show();
             }
         } else {
             //Si un niveau ou une disponibilité est pas check, l'envoie des données n'est pas possible
@@ -173,7 +178,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                     pstmins.setString(6, spinner.getSelectedItem().toString());
 
                     pstmins.executeUpdate();
-                    Toast.makeText(MainActivity.this, "Donnée envoyer", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "Donnée envoyer " +verifpseudo + " " +userv, Toast.LENGTH_LONG).show();
                     videTexte();
 
                 } catch (SQLException seinst) {
@@ -186,7 +191,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
     public void FillSpinner() {
         try {
-            mysqlConnexion();
             String query = "SELECT * FROM listassociation";
             PreparedStatement stmt = conn.prepareStatement(query);
             ResultSet rs = stmt.executeQuery();
@@ -203,21 +207,28 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         }
     }
 
-    public int VerificationUser(){
+   public void VerificationUser() {
+       ArrayList<String> data2 = new ArrayList<String>();
         try {
-            mysqlConnexion();
-            //String verif = ajpseudo.getText().toString();
-            Statement stmtm = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            ResultSet userv = stmtm.executeQuery("SELECT count(*) from informations WHERE pseudo = '"+ajpseudo+"' ");
-            if (userv.next())
-                return userv.getInt(1);
-            else{
-                return userv.getInt(0);
+            String secondquery = "SELECT * FROM informations";
+            PreparedStatement statementmt = conn.prepareStatement(secondquery);
+            ResultSet rst = statementmt.executeQuery();
+
+            while (rst.next()) {
+                String association = rst.getString("pseudo");
+                data2.add(association);
             }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return 0;
+            ArrayAdapter array2 = new ArrayAdapter(this, android.R.layout.simple_list_item_2, data2);
+        } catch (SQLException err) {
+            err.printStackTrace();
         }
+
+       if(data2.contains(verifpseudo)){
+           userv = 1;
+       }
+       else{
+           userv = 0;
+       }
     }
 
     public void videTexte() {
