@@ -207,8 +207,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         try {
             mysqlConnexion();
             //String verif = ajpseudo.getText().toString();
-            Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            ResultSet userv = stmt.executeQuery("SELECT count(*) from informations WHERE pseudo = '"+ajpseudo+"' ");
+            Statement stmtm = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            ResultSet userv = stmtm.executeQuery("SELECT count(*) from informations WHERE pseudo = '"+ajpseudo+"' ");
             if (userv.next())
                 return userv.getInt(1);
             else{
