@@ -22,20 +22,22 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements OnClickListener{
+public class MainActivity extends AppCompatActivity implements OnClickListener {
 
     ResultSet rst = null;
     public static Connection conn = null;
 
     private EditText ajpseudo, ajmdp, ajcmdp, ajcommentaire;
     private Button ok;
-    private RadioButton  easy, medium, hard, selecteddiff, selectedjour;
+    private RadioButton easy, medium, hard, selecteddiff, selectedjour;
     private RadioGroup radioGroup_diffLevel, radioGroup_jour;
     private CheckBox lundi, mardi, mercredi, jeudi, vendredi;
     private Spinner spinner;
     private String pass, cpass;
+    private int userv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,18 +49,17 @@ public class MainActivity extends AppCompatActivity implements OnClickListener{
                 .detectDiskReads()
                 .detectDiskWrites()
                 .detectNetwork()
-                .penaltyLog() // Enregistre un message à logcat
+                .penaltyLog()
                 .build());
         StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
                 .detectLeakedSqlLiteObjects()
                 .penaltyLog()
-                .penaltyDeath() //l'application se bloque, fonctionne à //la fin de toutes les sanctions permises
+                .penaltyDeath()
                 .build());
 
-        //appel de la connexion
+
         mysqlConnexion();
 
-//Déclarations
         ajpseudo = (EditText) findViewById(R.id.ajpseudo);
         ajmdp = (EditText) findViewById(R.id.ajmdp);
         ajcmdp = (EditText) findViewById(R.id.ajcmdp);
@@ -81,10 +82,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener{
         radioGroup_diffLevel = (RadioGroup) findViewById(R.id.radioGroup_diffLevel);
 
         FillSpinner();
+        VerificationUser();
     }
 
     @SuppressLint("NewApi")
-    public void mysqlConnexion () {
+    public void mysqlConnexion() {
         String jdbcURL = "jdbc:mysql://10.4.253.123:3306/inscription";
         String user = "monty";
         String passwd = "some_pass";
@@ -103,53 +105,63 @@ public class MainActivity extends AppCompatActivity implements OnClickListener{
             Log.d("error", "SQLState: " + ex.getSQLState());
             Log.d("error", "VendorError: " + ex.getErrorCode());
         }
-    } // fin de MysqlConnection
+    }
 
     @Override
     public void onClick(View view) {
 
         //Avoir le bon bouton selectionner ( RadioGroup : Niveau )
         int selecteddiffid = radioGroup_diffLevel.getCheckedRadioButtonId();
-        selecteddiff  = (RadioButton) findViewById(radioGroup_diffLevel.getCheckedRadioButtonId());
-        selecteddiff  = (RadioButton) findViewById(selecteddiffid);
+        selecteddiff = (RadioButton) findViewById(radioGroup_diffLevel.getCheckedRadioButtonId());
+        selecteddiff = (RadioButton) findViewById(selecteddiffid);
 
-        /*/Avoir le bon bouton selectionner ( RadioGroup : Diponibilité de la semaine )
-        int selectedjourid = radioGroup_jour.getCheckedRadioButtonId();
-        selectedjour = (RadioButton) findViewById(radioGroup_jour.getCheckedRadioButtonId());
-        selectedjour  = (RadioButton) findViewById(selectedjourid);*/
+        //Avoir le message de la box selectionnée ( CheckBox : Diponibilité de la semaine )
+        String msg = "";
+
+        if (lundi.isChecked())
+            msg = msg + " Lundi ";
+        if (mardi.isChecked())
+            msg = msg + " Mardi ";
+        if (mercredi.isChecked())
+            msg = msg + " Mercredi ";
+        if (jeudi.isChecked())
+            msg = msg + " Jeudi ";
+        if (vendredi.isChecked())
+            msg = msg + " Vendredi ";
+
 
         //Avoir le bon spinner selectionner
         String text = spinner.getSelectedItem().toString();
 
         //Verification mdp
-        String pass=ajmdp.getText().toString();
-        String cpass=ajcmdp.getText().toString();
+        String pass = ajmdp.getText().toString();
+        String cpass = ajcmdp.getText().toString();
 
-        String valuesOfCheckBox = "";
-        if (lundi.isSelected()) {
-            valuesOfCheckBox += lundi.getText() + " ";
-        }
-        if (mardi.isSelected()) {
-            valuesOfCheckBox += mardi.getText() + " ";
-        }
-        if (mercredi.isSelected()) {
-            valuesOfCheckBox += mercredi.getText() + " ";
-        }
-        if (jeudi.isSelected()) {
-            valuesOfCheckBox += jeudi.getText() + " ";
-        }
-        if (vendredi.isSelected()) {
-            valuesOfCheckBox += vendredi.getText() + " ";
-        }
+        //Verification si une disponibilité est check
+        String dispcheck = "";
 
-        if (!pass.equals(cpass)){
-                  Toast.makeText(MainActivity.this, "Mot de passe non identique" , Toast.LENGTH_LONG).show();
-              }
-        else{
-            if (selecteddiffid  == -1 ) {
-                Toast.makeText(MainActivity.this, "Veuillez choisir un niveau" , Toast.LENGTH_LONG).show();
+        //Si la confirmation de mot de passe n'est pas identique et si le pseudo est déjà pris, l'envoie des données n'est pas possible
+        if (!pass.equals(cpass) || userv == 1) {
+            //Si la confirmation de mot de passe n'est pas identique, l'envoie des données n'est pas possible
+            if (!pass.equals(cpass)){
+                Toast.makeText(MainActivity.this, "Mot de passe non identique", Toast.LENGTH_LONG).show();
             }
-            else{
+            //Si le pseudo est déjà pris, l'envoie des données n'est pas possible
+            else if (userv == 1){
+                Toast.makeText(MainActivity.this, "Le pseudo est déjà pris", Toast.LENGTH_LONG).show();
+            }
+        } else {
+            //Si un niveau ou une disponibilité est pas check, l'envoie des données n'est pas possible
+            if (selecteddiffid == -1 || msg == dispcheck) {
+                //Si un niveau est pas check, l'envoie des données n'est pas possible
+                if (selecteddiffid == -1) {
+                    Toast.makeText(MainActivity.this, "Veuillez choisir un niveau", Toast.LENGTH_LONG).show();
+                }
+                //Si une disponibilité est pas check, l'envoie des données n'est pas possible
+                else if (msg == dispcheck) {
+                    Toast.makeText(MainActivity.this, "Veuillez choisir un jour de disponibilité", Toast.LENGTH_LONG).show();
+                }
+            } else {
                 try {
                     String sqlins = "insert into informations (pseudo, mdp, commentaire, difficultee, jour, association) values (?,?,?,?,?,?)";
                     PreparedStatement pstmins = conn.prepareStatement(sqlins);
@@ -157,7 +169,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener{
                     pstmins.setString(2, ajmdp.getText().toString());
                     pstmins.setString(3, ajcommentaire.getText().toString());
                     pstmins.setString(4, selecteddiff.getText().toString());
-                    pstmins.setString(5, valuesOfCheckBox);
+                    pstmins.setString(5, msg);
                     pstmins.setString(6, spinner.getSelectedItem().toString());
 
                     pstmins.executeUpdate();
@@ -170,12 +182,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener{
                 }
             }
         }
-    }//fin de méthode onclick
+    }
 
-    public void FillSpinner(){
+    public void FillSpinner() {
         try {
             mysqlConnexion();
-            String query = "select * from listassociation";
+            String query = "SELECT * FROM listassociation";
             PreparedStatement stmt = conn.prepareStatement(query);
             ResultSet rs = stmt.executeQuery();
 
@@ -186,8 +198,25 @@ public class MainActivity extends AppCompatActivity implements OnClickListener{
             }
             ArrayAdapter array = new ArrayAdapter(this, android.R.layout.simple_list_item_1, data);
             spinner.setAdapter(array);
-        }catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
+        }
+    }
+
+    public int VerificationUser(){
+        try {
+            mysqlConnexion();
+            String verif = ajpseudo.getText().toString();
+            Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            ResultSet userv = stmt.executeQuery("SELECT * from informations WHERE pseudo = '"+verif+"' ");
+            if (userv.next())
+                return userv.getInt(1);
+            else{
+                return userv.getInt(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return 0;
         }
     }
 
@@ -197,6 +226,5 @@ public class MainActivity extends AppCompatActivity implements OnClickListener{
         ajcmdp.setText("");
         ajcommentaire.setText("");
         radioGroup_diffLevel.clearCheck();
-        Checkbox.setSelected(false);
     }
 }
